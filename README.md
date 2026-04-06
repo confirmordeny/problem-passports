@@ -4,6 +4,9 @@ Dataset for problematic passports including fantasy and camouflage passports.
 # Warning
 If you are offered or presented with a document that appears on the list in this repo you should exercise caution and scepticism.
 
+# Main outputs
+[Organisations linked to problem passports](https://github.com/confirmordeny/problem-passports/blob/main/dist/ORGANISATIONS_LINKED_TO_PROBLEM_PASSPORTS.md)
+
 # Not endorsed by anyone
 This repo is not endorsed by any international organisation, government or public authority anywhere in the world. In fact, this repo is not currently endorsed by anyone.
 
