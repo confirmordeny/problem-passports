@@ -1,5 +1,8 @@
 # Problem passports
-dataset for problematic passports including fantasy and camouflage passports
+Dataset for problematic passports including fantasy and camouflage passports.
+
+# Warning
+If you are offered or presented with a document that appears on the list in this repo you should exercise caution and scepticism.
 
 
 # Copyright
