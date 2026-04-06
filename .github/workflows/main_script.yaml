@@ -26,7 +26,7 @@ jobs:
           import os
           import sys
 
-          # Define paths relative to the repo root
+          # Path setup
           repo_root = os.getcwd()
           input_path = os.path.join(repo_root, "data", "problem_passports_dataset.csv")
           output_dir = os.path.join(repo_root, "dist")
@@ -43,7 +43,6 @@ jobs:
           
           with open(input_path, mode='r', encoding='utf-8') as f:
               reader = csv.DictReader(f)
-              # Convert fieldnames to a list so we can reorder them
               fieldnames = list(reader.fieldnames)
               
               target_column = "Etymology classification by Repo"
@@ -53,6 +52,8 @@ jobs:
               if first_column in fieldnames:
                   fieldnames.remove(first_column)
                   fieldnames.insert(0, first_column)
+              else:
+                  print(f"Warning: '{first_column}' not found. Check CSV headers.")
               
               if target_column not in fieldnames:
                   print(f"ERROR: Column '{target_column}' not found.")
@@ -63,22 +64,27 @@ jobs:
                       organisations.append(row)
 
           with open(output_file, mode='w', encoding='utf-8') as f:
+              # Warning header
               f.write("\n\n")
               f.write("# Organisations linked to problem passports\n\n")
               
-              # Using triple quotes for safe string literal handling
-              note_text = """> **Note:** This listing is based on an extract of the EU's [List of known fantasy and camouflage passports](https://home-affairs.ec.europa.eu/list-known-fantasy-and-camouflage-passports_en) (October 2025).\n\n"""
-              f.write(note_text)
+              # EU Link Note
+              note = (
+                  "> **Note:** This listing is based on an extract of the EU's "
+                  "[List of known fantasy and camouflage passports]"
+                  "(https://home-affairs.ec.europa.eu/list-known-fantasy-and-camouflage-passports_en) "
+                  "(October 2025).\n\n"
+              )
+              f.write(note)
               
               if not organisations:
                   f.write("_No records found with classification 'Organisation'._")
               else:
-                  # Table Headers (using the new fieldnames order)
-                  f.write("| " + " | ".join(fieldnames) + " |\n")
-                  f.write("| " + " | ".join(["---"] * len(fieldnames)) + " |\n")
+                  # Generate Header strings separately to avoid line-break syntax errors
+                  header_row = "| " + " | ".join(fieldnames) + " |\n"
+                  separator_row = "| " + " | ".join(["---"] * len(fieldnames)) + " |\n"
                   
-                  # Table Rows
-                  for org in organisations:
-                      # We pull values based on the reordered fieldnames list
-                      safe_values = [str(org.get(col, "")).replace("|", "\\|") for col in fieldnames]
-                      f.write("| " + " | ".join(safe_values) + " |\
+                  f.write(header_row)
+                  f.write(separator_row)
+                  
+                  for org in organisations
