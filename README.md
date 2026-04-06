@@ -4,6 +4,8 @@ Dataset for problematic passports including fantasy and camouflage passports.
 # Warning
 If you are offered or presented with a document that appears on the list in this repo you should exercise caution and scepticism.
 
+# Not endorsed by anyone
+This repo is not endorsed by any international organisation, government or public authority anywhere in the world. In fact, this repo is not currently endorsed by anyone.
 
 # Copyright
 Copyright © Confirmordeny 2025–⁠2026 released under a Creative Commons Attribution Share Alike 4.0 International
@@ -20,3 +22,5 @@ See also the Acknowledgements section below.
 
 # Acknowledgements
 The list of problem passports was based on the European Commissions's [List of known fantasy and camouflage passports](https://home-affairs.ec.europa.eu/list-known-fantasy-and-camouflage-passports_en) (30 October 2025). This data reproduced in line with the the [Open Data Directive](https://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1561563110433&uri=CELEX:32019L1024) (Directive (EU) 2019/1024), which encourages the reuse of public sector information for commercial and non-commercial purposes.
+
+Elements of this README file are taken from the [SupraVerden README](https://github.com/confirmordeny/supraverden/blob/main/README.md) file.
