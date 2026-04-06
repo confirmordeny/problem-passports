@@ -1,1 +1,77 @@
+name: Filter organisations
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
 
+permissions:
+  contents: write
+
+jobs:
+  process-and-extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Inline Python Script
+        shell: python
+        run: |
+          import csv
+          import os
+
+          # Configuration
+          INPUT_PATH = "data/problem_passports_dataset.csv"
+          OUTPUT_DIR = "dist"
+          OUTPUT_FILE = os.path.join(OUTPUT_DIR, "ORGANISATIONS_LINKED_TO_PROBLEM_PASSPORTS.md")
+
+          # Ensure directory exists
+          if not os.path.exists(OUTPUT_DIR):
+              os.makedirs(OUTPUT_DIR)
+
+          if not os.path.exists(INPUT_PATH):
+              print(f"Source file {INPUT_PATH} not found.")
+              exit(1)
+
+          organisations = []
+          with open(INPUT_PATH, mode='r', encoding='utf-8') as f:
+              reader = csv.DictReader(f)
+              fieldnames = reader.fieldnames
+              for row in reader:
+                  if row.get("Etymology classification by Repo") == "Organisation":
+                      organisations.append(row)
+
+          # Write Markdown
+          with open(OUTPUT_FILE, mode='w', encoding='utf-8') as f:
+              # 1. Invisible Warning (Internal)
+              f.write("\n\n")
+              
+              # 2. Visible Header
+              f.write("# Organisations Linked to Problem Passports\n\n")
+              f.write("> **Note:** This listing is based on an extract of the EU's List of known fantasy and camouflage passports (October 2025).\n\n")
+              
+              # 3. Table Generation
+              if not organisations:
+                  f.write("No records found with classification 'Organisation'.")
+              else:
+                  f.write("| " + " | ".join(fieldnames) + " |\n")
+                  f.write("| " + " | ".join(["---"] * len(fieldnames)) + " |\n")
+                  for org in organisations:
+                      # Escape pipes to avoid breaking MD table
+                      row_values = [str(v).replace("|", "\\|") for v in org.values()]
+                      f.write("| " + " | ".join(row_values) + " |\n")
+          
+          print(f"Processed {len(organisations)} rows.")
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/ORGANISATIONS_LINKED_TO_PROBLEM_PASSPORTS.md
+          git commit -m "Auto-update organisations extract [skip ci]" || echo "No changes to commit"
+          git push
