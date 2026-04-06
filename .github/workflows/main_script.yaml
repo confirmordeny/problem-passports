@@ -30,7 +30,10 @@ jobs:
           repo_root = os.getcwd()
           input_path = os.path.join(repo_root, "data", "problem_passports_dataset.csv")
           output_dir = os.path.join(repo_root, "dist")
-          output_file = os.path.join(output_dir, "ORGANISATIONS_LINKED_TO_PROBLEM_PASSPORTS.md")
+          
+          # Define two output files
+          org_output_file = os.path.join(output_dir, "ORGANISATIONS_LINKED_TO_PROBLEM_PASSPORTS.md")
+          full_output_file = os.path.join(output_dir, "FULL_PROBLEM_PASSPORTS_DATASET.md")
 
           if not os.path.exists(input_path):
               print(f"ERROR: Source file NOT found at: {input_path}")
@@ -40,6 +43,7 @@ jobs:
               os.makedirs(output_dir)
 
           organisations = []
+          full_dataset = []
           
           with open(input_path, mode='r', encoding='utf-8') as f:
               reader = csv.DictReader(f)
@@ -52,39 +56,48 @@ jobs:
               if first_column in fieldnames:
                   fieldnames.remove(first_column)
                   fieldnames.insert(0, first_column)
-              else:
-                  print(f"Warning: '{first_column}' not found. Check CSV headers.")
               
               if target_column not in fieldnames:
                   print(f"ERROR: Column '{target_column}' not found.")
                   sys.exit(1)
 
               for row in reader:
+                  full_dataset.append(row)
                   if row.get(target_column) == "Organisation":
                       organisations.append(row)
 
-          with open(output_file, mode='w', encoding='utf-8') as f:
-              # Warning header
-              f.write("\n\n")
-              f.write("# Organisations linked to problem passports\n\n")
-              
-              # EU Link Note
-              note = (
-                  "> **Note:** This listing is based on an extract of the EU's "
-                  "[List of known fantasy and camouflage passports]"
-                  "(https://home-affairs.ec.europa.eu/list-known-fantasy-and-camouflage-passports_en) "
-                  "(October 2025).\n\n"
-              )
-              f.write(note)
-              
-              if not organisations:
-                  f.write("_No records found with classification 'Organisation'._")
-              else:
-                  # Generate Header strings separately to avoid line-break syntax errors
-                  header_row = "| " + " | ".join(fieldnames) + " |\n"
-                  separator_row = "| " + " | ".join(["---"] * len(fieldnames)) + " |\n"
+          # Helper function to write Markdown tables
+          def write_markdown_table(file_path, title, data_list, headers):
+              with open(file_path, mode='w', encoding='utf-8') as f:
+                  f.write(f"\n\n# {title}\n\n")
+                  note = (
+                      "> **Note:** This listing is based on an extract of the EU's "
+                      "[List of known fantasy and camouflage passports]"
+                      "(https://home-affairs.ec.europa.eu/list-known-fantasy-and-camouflage-passports_en) "
+                      "(October 2025).\n\n"
+                  )
+                  f.write(note)
                   
-                  f.write(header_row)
-                  f.write(separator_row)
-                  
-                  for org in organisations
+                  if not data_list:
+                      f.write("_No records found._")
+                  else:
+                      header_row = "| " + " | ".join(headers) + " |\n"
+                      separator_row = "| " + " | ".join(["---"] * len(headers)) + " |\n"
+                      f.write(header_row)
+                      f.write(separator_row)
+                      
+                      for row in data_list:
+                          # Clean values to avoid breaking Markdown table syntax (remove newlines/pipes)
+                          row_data = [str(row.get(h, "")).replace("|", "\\|").replace("\n", " ") for h in headers]
+                          f.write("| " + " | ".join(row_data) + " |\n")
+
+          # Write both files
+          write_markdown_table(org_output_file, "Organisations linked to problem passports", organisations, fieldnames)
+          write_markdown_table(full_output_file, "Full Problem Passports Dataset", full_dataset, fieldnames)
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add dist/*.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update MD dataset tables" && git push)
