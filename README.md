@@ -11,6 +11,9 @@ If you are offered or presented with a document that appears on the list in this
 # Not endorsed by anyone
 This repo is not endorsed by any international organisation, government or public authority anywhere in the world. In fact, this repo is not currently endorsed by anyone.
 
+# Using this repo
+The content of this repo should not be relied upon as legal or professional advice.
+
 # Copyright
 Copyright © Confirmordeny 2025–⁠2026 released under a Creative Commons Attribution Share Alike 4.0 International
 
